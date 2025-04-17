@@ -1,73 +1,84 @@
 package com.example.ReviewEngine.model;
+
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
+@Table(name = "reviews")
 public class Review {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
-    private String writtenBy;
-
-    @Temporal(TemporalType.DATE)
-    private Date date;
-
-    private int rating;
-
-    @Column(length = 1000)
-    private String text;
-
-    @ManyToOne
-    @JoinColumn(name = "product_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    public Review() {}
+    @Column(name = "reviewer_name", nullable = false)
+    private String reviewerName;
 
-    public Review(String writtenBy, Date date, int rating, String text, Product product) {
-        this.writtenBy = writtenBy;
-        this.date = date;
-        this.rating = rating;
-        this.text = text;
-        this.product = product;
+    @Column(name = "text", length = 1000, nullable = false)
+    private String text;
+
+    @Column(nullable = false)
+    private int rating;
+
+    @Column(name = "review_date", nullable = false, updatable = false)
+    private LocalDate reviewDate;
+
+    public Review() {
     }
+
+    public Review(Product product,
+                  String reviewerName,
+                  String text,
+                  int rating) {
+        this.product      = product;
+        this.reviewerName = reviewerName;
+        this.text         = text;
+        this.rating       = rating;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.reviewDate = LocalDate.now();
+    }
+
+
     public Long getReviewId() {
         return reviewId;
     }
-    public void setReviewId(Long reviewId) {
-        this.reviewId = reviewId;
-    }
-    public String getWrittenBy() {
-        return writtenBy;
-    }
-    public void setWrittenBy(String writtenBy) {
-        this.writtenBy = writtenBy;
-    }
-    public Date getDate() {
-        return date;
-    }
-    public void setDate(Date date) {
-        this.date = date;
-    }
-    public int getRating() {
-        return rating;
-    }
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
-    public String getText() {
-        return text;
 
-    }
-    public void setText(String text) {
-        this.text = text;
-    }
     public Product getProduct() {
         return product;
     }
     public void setProduct(Product product) {
         this.product = product;
     }
-        
 
+    public String getReviewerName() {
+        return reviewerName;
+    }
+    public void setReviewerName(String reviewerName) {
+        this.reviewerName = reviewerName;
+    }
+
+    public String getText() {
+        return text;
+    }
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
+
+    public LocalDate getReviewDate() {
+        return reviewDate;
+    }
 }
