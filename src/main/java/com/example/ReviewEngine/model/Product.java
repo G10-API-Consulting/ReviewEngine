@@ -12,15 +12,16 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String category;
 
     @ElementCollection
     private List<String>  tags = new ArrayList<>();
 
+    @Temporal(TemporalType.DATE)
     @Column(nullable = false)
     private Date createdDate;
 
@@ -29,12 +30,17 @@ public class Product {
     public Product() {
     }
 
+
     public Product(String name, String category, List<String>tags){
         this.name = name;
         this.category = category;
         this.tags = tags;
     }
 
+    @PrePersist //Sets the date just before saving user to database
+    protected void onCreate() {
+        createdDate = new Date();
+    }
 
     public Long getProductId() {
         return productId;
