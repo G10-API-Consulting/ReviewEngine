@@ -4,6 +4,7 @@ import com.example.ReviewEngine.dto.ProductIdRequest;
 import com.example.ReviewEngine.dto.ProductRequest;
 import com.example.ReviewEngine.model.Product;
 import com.example.ReviewEngine.repository.ProductRepository;
+import com.example.ReviewEngine.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,23 +16,25 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/product")
 public class ProductController {
-    private final ProductRepository repo;
+    private final ProductService productService;
+    private final ProductRepository productRepository;
 
-    public ProductController(ProductRepository repo){
-        this.repo = repo;
+    public ProductController(ProductService productService, ProductRepository productRepository){
+        this.productService = productService;
+        this.productRepository = productRepository;
     }
 
     @PostMapping("id")
     public ResponseEntity<Product> getProduct(@RequestBody ProductIdRequest productRequest) throws Exception{
-        Product product = repo.findById(productRequest.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
-        return ResponseEntity.ok(product);
+        return productRepository.findById(productRequest.getId())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/save")
     public ResponseEntity<Product> saveProduct(@RequestBody ProductRequest productRequest){
-        Product product = new Product(productRequest.getName(), productRequest.getCategory(), productRequest.getTags());
-        return ResponseEntity.status(HttpStatus.CREATED).body(repo.save(product));
+        Product product = productService.createProduct(productRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
 }

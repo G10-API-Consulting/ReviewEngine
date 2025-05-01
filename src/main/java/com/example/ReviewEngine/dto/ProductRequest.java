@@ -1,13 +1,20 @@
 package com.example.ReviewEngine.dto;
 
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProductRequest {
 
+    @Schema(description = "Enter product name", example = "iphone 15")
     private String name;
+
+    @Schema(description = "Enter category", example = "Phones")
     private String category;
+
+    @Schema(description = "Enter tags", example = "[\"Smartphone\", \"Apple\"]")
     private List<String> tags = new ArrayList<>();
 
 
