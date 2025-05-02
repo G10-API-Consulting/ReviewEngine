@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name = "users")
 public class User {
 
     public enum Role {
@@ -28,11 +29,11 @@ public class User {
     @Column(nullable = false)
     private Date date;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String apiKey;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private Role role;
 
     public User() {
