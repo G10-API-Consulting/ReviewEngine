@@ -1,9 +1,8 @@
 package com.example.ReviewEngine.model;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @Entity
@@ -18,26 +17,34 @@ public class Product {
     @Column(nullable = false)
     private String category;
 
-    @ElementCollection
-    private List<String>  tags = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "product_tags",
+             joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    @JsonManagedReference
+    private Set<Tag> tags = new HashSet<>();
 
     @Temporal(TemporalType.DATE)
     @Column(nullable = false)
     private Date createdDate;
 
-    private String productUrl;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
     public Product() {
     }
 
 
-    public Product(String name, String category, List<String>tags){
+    public Product(String name, String category, Set<Tag>tags){
         this.name = name;
         this.category = category;
         this.tags = tags;
     }
 
-    @PrePersist //Sets the date just before saving user to database
+    @PrePersist
     protected void onCreate() {
         createdDate = new Date();
     }
@@ -50,13 +57,6 @@ public class Product {
         this.productId = produtcId;
     }
 
-    public List<String> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
 
     public String getCategory() {
         return category;
@@ -72,5 +72,21 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
     }
 }

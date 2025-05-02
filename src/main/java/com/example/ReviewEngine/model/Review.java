@@ -30,10 +30,7 @@ public class Review {
     public Review() {
     }
 
-    public Review(Product product,
-                  String reviewerName,
-                  String text,
-                  int rating) {
+    public Review(Product product, String reviewerName, String text, int rating) {
         this.product      = product;
         this.reviewerName = reviewerName;
         this.text         = text;
