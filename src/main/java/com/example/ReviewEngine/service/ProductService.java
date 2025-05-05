@@ -5,9 +5,12 @@ import com.example.ReviewEngine.model.Product;
 import com.example.ReviewEngine.model.Tag;
 import com.example.ReviewEngine.repository.ProductRepository;
 import com.example.ReviewEngine.repository.TagRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -32,18 +35,25 @@ public class ProductService {
             productTags.add(tag);
         }
 
-        Product product = new Product();
-        product.setName(request.getName());
-        product.setCategory(request.getCategory());
-        product.setTags(productTags);
+        Product product = Product.builder()
+                .name(request.getName())
+                .category(request.getCategory())
+                .tags(productTags)
+                .build();
 
-        product.setTags(productTags);
 
         return productRepository.save(product);
     }
 
-//    public Product getProductById(Long id){
-//        return productRepository.findById(id)
-//                .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
-//    }
+
+    public Product getProductById(Long id){
+        return productRepository.findById(id)
+                .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+    }
+
+    public List<Product> getAllProducts(){
+        return productRepository.findAll();
+    }
 }
+
+
