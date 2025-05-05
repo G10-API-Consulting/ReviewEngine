@@ -1,18 +1,22 @@
 package com.example.ReviewEngine.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "reviews")
+@JsonIgnoreProperties({"product"})
 public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reviewId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonBackReference
     private Product product;
 
     @Column(name = "reviewer_name", nullable = false)
@@ -30,11 +34,15 @@ public class Review {
     public Review() {
     }
 
-    public Review(Product product, String reviewerName, String text, int rating) {
-        this.product      = product;
-        this.reviewerName = reviewerName;
-        this.text         = text;
-        this.rating       = rating;
+    public Review(Builder builder) {
+        this.product      = builder.product;
+        this.reviewerName = builder.reviewerName;
+        this.text         = builder.text;
+        this.rating       = builder.rating;
+    }
+
+    public static Builder builder(){
+        return new Builder();
     }
 
     @PrePersist
@@ -44,7 +52,7 @@ public class Review {
 
 
     public Long getReviewId() {
-        return reviewId;
+        return id;
     }
 
     public Product getProduct() {
@@ -78,4 +86,36 @@ public class Review {
     public LocalDate getReviewDate() {
         return reviewDate;
     }
+
+    public static class Builder{
+        private Product product;
+        private String reviewerName;
+        private String text;
+        private int rating;
+
+        public Builder product(Product product){
+            this.product = product;
+            return this;
+        }
+
+        public Builder reviewerName(String reviewerName){
+            this.reviewerName = reviewerName;
+            return this;
+        }
+
+        public Builder text(String text){
+            this.text = text;
+            return this;
+        }
+
+        public Builder rating(int rating){
+            this.rating = rating;
+            return this;
+        }
+
+        public Review build(){
+            return new Review(this);
+        }
+    }
+
 }
