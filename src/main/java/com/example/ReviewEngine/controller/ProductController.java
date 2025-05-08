@@ -1,5 +1,6 @@
 package com.example.ReviewEngine.controller;
 
+import com.example.ReviewEngine.ai.AIClient;
 import com.example.ReviewEngine.dto.ProductIdRequest;
 import com.example.ReviewEngine.dto.ProductRequest;
 
@@ -16,9 +17,11 @@ import java.util.List;
 @RequestMapping("/product")
 public class ProductController {
     private final ProductService productService;
+    private final AIClient aiClient;
 
-    public ProductController(ProductService productService){
+    public ProductController(ProductService productService, AIClient aiClient ){
         this.productService = productService;
+        this.aiClient = aiClient;
     }
 
     @PostMapping("/save")
@@ -34,6 +37,7 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<Product>> getProducts(){
+        aiClient.generateReview();
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
