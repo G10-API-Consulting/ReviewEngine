@@ -20,7 +20,7 @@ public class Product {
     @ManyToMany
     @JoinTable(
             name = "product_tags",
-             joinColumns = @JoinColumn(name = "product_id"),
+            joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     @JsonManagedReference
@@ -32,29 +32,38 @@ public class Product {
 
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Review> reviews = new ArrayList<>();
 
-    public Product() {
+    public Product() {}
+
+
+    // Testar builder här
+    private Product(Builder builder){
+        this.name = builder.name;
+        this.category = builder.category;
+        this.tags = builder.tags;
+        this.reviews = builder.reviews;
     }
 
-
-    public Product(String name, String category, Set<Tag>tags){
-        this.name = name;
-        this.category = category;
-        this.tags = tags;
+    public static Builder builder() {
+        return new Builder();
     }
 
     @PrePersist
     protected void onCreate() {
         createdDate = new Date();
     }
+    public Date getCreatedDate() {
+        return createdDate;
+    }
 
     public Long getProductId() {
         return productId;
     }
 
-    public void setProductId(Long produtcId) {
-        this.productId = produtcId;
+    public void setProductId(Long id) {
+        this.productId = id;
     }
 
 
@@ -88,5 +97,38 @@ public class Product {
 
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
+    }
+
+    // builder class
+
+    public static class Builder{
+        private String name;
+        private String category;
+        private Set<Tag> tags = new HashSet<>();
+        private List<Review> reviews = new ArrayList<>();
+
+        public Builder name(String name){
+            this.name = name;
+            return this;
+        }
+
+        public Builder category(String category){
+            this.category = category;
+            return this;
+        }
+
+        public Builder tags(Set<Tag> tags){
+            this.tags = tags;
+            return this;
+        }
+
+        public Builder reviews(List<Review> reviews){
+            this.reviews = reviews;
+            return this;
+        }
+
+        public Product build(){
+            return new Product(this);
+        }
     }
 }
