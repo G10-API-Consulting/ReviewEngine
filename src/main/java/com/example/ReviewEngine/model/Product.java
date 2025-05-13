@@ -31,7 +31,7 @@ public class Product {
     private Date createdDate;
 
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Review> reviews = new ArrayList<>();
 
@@ -99,6 +99,8 @@ public class Product {
         this.tags = tags;
     }
 
+
+
     // builder class
 
     public static class Builder{
@@ -131,4 +133,5 @@ public class Product {
             return new Product(this);
         }
     }
+
 }

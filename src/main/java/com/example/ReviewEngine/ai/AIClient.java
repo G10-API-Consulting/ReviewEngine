@@ -5,36 +5,55 @@ import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.Message;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
+import com.anthropic.models.messages.TextBlock;
+import com.example.ReviewEngine.model.Review;
+import com.example.ReviewEngine.model.Product;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 public class AIClient {
 
-    public void generateReview(){
-        // Använd från miljövariabeln
-        AnthropicClient client = AnthropicOkHttpClient.fromEnv(); // Klienten hämtar nyckeln från miljövariabeln
+    private final AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+    private final ReviewParser reviewParser;
 
-        // Kontrollera att klienten är korrekt instansierad
-        if (client == null) {
-            System.out.println("Kunde inte skapa klienten. Kontrollera miljövariabler.");
-            return;
-        }
+    public AIClient(ReviewParser reviewParser) {
+        this.reviewParser = reviewParser;
+    }
 
-        // Skapa parametrar för meddelandet
+    public Review generateReview(Product product) {
+
         MessageCreateParams params = MessageCreateParams.builder()
                 .model(Model.CLAUDE_3_HAIKU_20240307)
-                .maxTokens(50)
+                .maxTokens(100)
                 .temperature(1.0)
-                .system("Du är en person som har köpt en produkt")
-                .addUserMessage("Skrev ett recension")
+                .system("""
+                    Du ska skriva en kort recension av en produkt. Generera följande i exakt detta format:
+                    REVIEW: [En recension på max 1 mening]
+                    WRITER: [Ett påhittat namn på recensenten]
+                    RATING: [Ett heltal mellan 1-5]
+                    VIKTIGT: Följ exakt det här formatet med rubrikerna i versaler följt av kolon och svaret. Inkludera inga andra förklaringar eller text.
+                    """)
+                .addUserMessage("Produkt: " + product.getName() +
+                        ", Kategori: " + product.getCategory() +
+                        ", Taggar: " +   product.getTags())
                 .build();
 
-        // Skicka förfrågan
         try {
             Message message = client.messages().create(params);
-            System.out.println(message.content());
+            Optional<TextBlock> textBlockOptional = message.content().getFirst().text();
+
+            if (textBlockOptional.isPresent()) {
+                String responseText = textBlockOptional.get().text();
+                return reviewParser.parse(responseText, product);
+            } else {
+                System.out.println("Kunde inte extrahera text från svaret.");
+                return null;
+            }
         } catch (Exception e) {
             System.out.println("Fel vid meddelande skapande: " + e.getMessage());
+            return null;
         }
     }
 }
