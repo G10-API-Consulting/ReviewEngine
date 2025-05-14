@@ -33,7 +33,7 @@ public class ReviewParser {
                 .text(reviewText)
                 .rating(ratingValue)
                 .build();
-        }
+    }
 
     private static String extractValue(String text, String prefix){
         int startIndex = text.indexOf(prefix);
