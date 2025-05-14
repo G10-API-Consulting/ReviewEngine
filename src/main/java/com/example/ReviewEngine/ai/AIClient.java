@@ -6,7 +6,6 @@ import com.anthropic.models.messages.Message;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
 import com.anthropic.models.messages.TextBlock;
-import com.example.ReviewEngine.model.Review;
 import com.example.ReviewEngine.model.Product;
 import org.springframework.stereotype.Component;
 
@@ -16,25 +15,27 @@ import java.util.Optional;
 public class AIClient {
 
     private final AnthropicClient client = AnthropicOkHttpClient.fromEnv();
-    private final ReviewParser reviewParser;
 
-    public AIClient(ReviewParser reviewParser) {
-        this.reviewParser = reviewParser;
-    }
-
-    public Review generateReview(Product product) {
+    public String  generateReview(Product product) {
 
         MessageCreateParams params = MessageCreateParams.builder()
                 .model(Model.CLAUDE_3_HAIKU_20240307)
-                .maxTokens(100)
+                .maxTokens(400)
                 .temperature(1.0)
                 .system("""
-                    Du ska skriva en kort recension av en produkt. Generera följande i exakt detta format:
-                    REVIEW: [En recension på max 1 mening]
-                    WRITER: [Ett påhittat namn på recensenten]
-                    RATING: [Ett heltal mellan 1-5]
-                    VIKTIGT: Följ exakt det här formatet med rubrikerna i versaler följt av kolon och svaret. Inkludera inga andra förklaringar eller text.
-                    """)
+                        Du ska generera exakt 5 recensioner av en produkt i följande JSON-format:
+                        [
+                          {
+                            "review": "[En recension på max 1 mening]",
+                            "writer": "[Ett påhittat namn]",
+                            "rating": [Heltal mellan 1 och 5]
+                          },
+                          ...
+                        ]
+                       ⚠️ VIKTIGT:
+                            - Returnera **enbart** JSON-arrayen – inga förklaringar, ingen inledning, ingen text.
+                            - JSON måste vara strikt korrekt (komma mellan fält, citattecken runt strängar, etc).
+                            - Undvik svenska tecken som kan sabba JSON-parsning (t.ex. använd \\" istället för ” och ”)""")
                 .addUserMessage("Produkt: " + product.getName() +
                         ", Kategori: " + product.getCategory() +
                         ", Taggar: " +   product.getTags())
@@ -45,8 +46,7 @@ public class AIClient {
             Optional<TextBlock> textBlockOptional = message.content().getFirst().text();
 
             if (textBlockOptional.isPresent()) {
-                String responseText = textBlockOptional.get().text();
-                return reviewParser.parse(responseText, product);
+                return textBlockOptional.get().text();
             } else {
                 System.out.println("Kunde inte extrahera text från svaret.");
                 return null;

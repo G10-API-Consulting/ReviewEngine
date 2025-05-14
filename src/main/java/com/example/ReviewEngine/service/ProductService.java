@@ -1,13 +1,12 @@
 package com.example.ReviewEngine.service;
 
 import com.example.ReviewEngine.dto.ProductRequest;
+import com.example.ReviewEngine.exception.ProductNotFoundException;
 import com.example.ReviewEngine.model.Product;
 import com.example.ReviewEngine.model.Tag;
 import com.example.ReviewEngine.repository.ProductRepository;
 import com.example.ReviewEngine.repository.TagRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -47,11 +46,19 @@ public class ProductService {
 
     public Product getProductById(Long id){
         return productRepository.findById(id)
-                .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException("Produkt med id " + id + " finns inte."));
+
     }
+
 
     public List<Product> getAllProducts(){
         return productRepository.findAll();
+    }
+
+    public void deleteProduct(Long id){
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Produkt med id " + id + " finns inte."));
+        productRepository.delete(existingProduct);
     }
 }
 

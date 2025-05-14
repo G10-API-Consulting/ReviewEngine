@@ -1,7 +1,6 @@
 package com.example.ReviewEngine.dto;
 
 public class ReviewRequest {
-    private Long productId;
     private String reviewerName;
     private String text;
     private int rating;
@@ -10,7 +9,6 @@ public class ReviewRequest {
     }
 
     private ReviewRequest(Builder builder) {
-        this.productId = builder.productId;
         this.reviewerName = builder.reviewerName;
         this.text = builder.text;
         this.rating = builder.rating;
@@ -21,15 +19,10 @@ public class ReviewRequest {
     }
 
     public static class Builder {
-        private Long productId;
         private String reviewerName;
         private String text;
         private int rating;
 
-        public Builder productId(Long productId) {
-            this.productId = productId;
-            return this;
-        }
 
         public Builder reviewerName(String reviewerName) {
             this.reviewerName = reviewerName;
@@ -51,9 +44,6 @@ public class ReviewRequest {
         }
     }
 
-    public Long getProductId() {
-        return productId;
-    }
 
     public String getReviewerName() {
         return reviewerName;
