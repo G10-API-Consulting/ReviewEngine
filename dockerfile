@@ -1,9 +1,12 @@
-FROM amazon-corretto:21
-
+# Steg 1: Bygg applikationen med Maven och Corretto 21
+FROM maven:3.9.6-amazoncorretto-21 AS builder
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-COPY target/*.jar app.jar
-
+# Steg 2: Kör applikationen med Amazon Corretto 21
+FROM amazoncorretto:21
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
