@@ -4,6 +4,7 @@ import com.example.ReviewEngine.dto.ProductRequest;
 import com.example.ReviewEngine.exception.ProductNotFoundException;
 import com.example.ReviewEngine.model.Product;
 import com.example.ReviewEngine.model.Tag;
+import com.example.ReviewEngine.model.User;
 import com.example.ReviewEngine.repository.ProductRepository;
 import com.example.ReviewEngine.repository.TagRepository;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class ProductService {
     }
 
 
-    public Product createProduct(ProductRequest request){
+    public Product createProduct(ProductRequest request, User user){
 
         Set<Tag> productTags = new HashSet<>();
 
@@ -38,6 +39,7 @@ public class ProductService {
                 .name(request.getName())
                 .category(request.getCategory())
                 .tags(productTags)
+                .createdBy(user)
                 .build();
 
         return productRepository.save(product);
@@ -51,8 +53,12 @@ public class ProductService {
     }
 
 
-    public List<Product> getAllProducts(){
-        return productRepository.findAll();
+//    public List<Product> getAllProducts(){
+//        return productRepository.findAll();
+//    }
+
+    public List<Product> findByUser(User user) {
+        return productRepository.findByCreatedBy(user);
     }
 
     public void deleteProduct(Long id){

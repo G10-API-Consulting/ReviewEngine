@@ -11,6 +11,12 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
 
+    ///
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User createdBy;
+
+
     @Column(nullable = false)
     private String name;
 
@@ -44,6 +50,7 @@ public class Product {
         this.category = builder.category;
         this.tags = builder.tags;
         this.reviews = builder.reviews;
+        this.createdBy = builder.createdBy;
     }
 
     public static Builder builder() {
@@ -99,7 +106,13 @@ public class Product {
         this.tags = tags;
     }
 
+    public User getCreatedBy() {
+        return createdBy;
+    }
 
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
 
     // builder class
 
@@ -108,6 +121,7 @@ public class Product {
         private String category;
         private Set<Tag> tags = new HashSet<>();
         private List<Review> reviews = new ArrayList<>();
+        private User createdBy;
 
         public Builder name(String name){
             this.name = name;
@@ -126,6 +140,11 @@ public class Product {
 
         public Builder reviews(List<Review> reviews){
             this.reviews = reviews;
+            return this;
+        }
+
+        public Builder createdBy(User createdBy){
+            this.createdBy = createdBy;
             return this;
         }
 
