@@ -36,7 +36,6 @@ public class AuthController {
         // Hash the password
         user.setPassword(new BCryptPasswordEncoder().encode(request.getPassword()));
 
-        user.setRole(User.Role.valueOf(request.getRole().toUpperCase()));
         user.setApiKey(UUID.randomUUID().toString());
 
         userRepository.save(user);

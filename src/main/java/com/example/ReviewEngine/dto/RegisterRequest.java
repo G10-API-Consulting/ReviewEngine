@@ -5,7 +5,7 @@ public class RegisterRequest {
     private String name;
     private String userName;
     private String password;
-    private String role;    // "ADMIN" or "CUSTOMER"
+       // "ADMIN" or "CUSTOMER"
 
     public RegisterRequest() {
     }
@@ -34,11 +34,4 @@ public class RegisterRequest {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
 }

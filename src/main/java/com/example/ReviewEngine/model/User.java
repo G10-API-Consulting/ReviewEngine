@@ -7,11 +7,6 @@ import java.util.Date;
 @Table(name = "users")
 public class User {
 
-    public enum Role {
-        ADMIN,
-        CUSTOMER
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,10 +26,6 @@ public class User {
 
     @Column(unique = true)
     private String apiKey;
-
-    @Enumerated(EnumType.STRING)
-    //@Column(nullable = false)
-    private Role role;
 
     public User() {
     }
@@ -86,13 +77,5 @@ public class User {
 
     public Date getDate() {
         return date;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
     }
 }
