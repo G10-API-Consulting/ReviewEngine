@@ -41,7 +41,6 @@ class AuthControllerTest {
         regReq.setName("Test");
         regReq.setUserName("user1");
         regReq.setPassword("pass");
-        regReq.setRole("CUSTOMER");
 
         loginReq = new LoginRequest();
         loginReq.setUserName("user1");

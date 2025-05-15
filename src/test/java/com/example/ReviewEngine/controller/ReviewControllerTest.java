@@ -42,7 +42,6 @@ class ReviewControllerTest {
     void whenPostValidReview_thenReturnsSameReview() throws Exception {
         // prepare payload
         var reviewRequest = ReviewRequest.builder()
-                .productId(10L)
                 .reviewerName("Alice")
                 .text("Very good")
                 .rating(4)

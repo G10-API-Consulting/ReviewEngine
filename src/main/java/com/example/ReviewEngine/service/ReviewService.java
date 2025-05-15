@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class ReviewService {
     private final ProductRepository productRepository;
@@ -51,5 +53,14 @@ public class ReviewService {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(HttpStatus.NOT_FOUND +  " Review not found"));
         reviewRepository.delete(review);
+    }
+
+    public List<Review> getAllReview(){
+        return reviewRepository.findAll();
+    }
+
+    public Review getReviewById(Long id){
+        return reviewRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Review med id " + id + " finns inte."));
     }
 }

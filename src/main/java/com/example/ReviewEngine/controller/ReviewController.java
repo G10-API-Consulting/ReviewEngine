@@ -6,6 +6,8 @@ import com.example.ReviewEngine.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/product")
 public class ReviewController {
@@ -32,4 +34,15 @@ public class ReviewController {
         reviewService.deleteReview(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/review/{id}")
+    public ResponseEntity<Review> getReviewById(@PathVariable Long id){
+        return ResponseEntity.ok(reviewService.getReviewById(id));
+    }
+
+    @GetMapping("/reviews")
+    public ResponseEntity<List<Review>> getReview(){
+        return ResponseEntity.ok(reviewService.getAllReview());
+    }
+
 }

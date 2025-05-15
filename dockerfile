@@ -2,7 +2,7 @@
 FROM maven:3.9.6-amazoncorretto-21 AS builder
 WORKDIR /app
 COPY . .
-RUN mvn clean package -DskipTests
+RUN mvn clean package -Dmaven.test.skip=true
 
 # Steg 2: Kör applikationen med Amazon Corretto 21
 FROM amazoncorretto:21
