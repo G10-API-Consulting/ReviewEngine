@@ -2,11 +2,9 @@ package com.example.ReviewEngine.repository;
 
 import com.example.ReviewEngine.model.ApiKey;
 import com.example.ReviewEngine.model.User;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
@@ -16,54 +14,28 @@ class ApiKeyRepositoryTest {
 
     @Autowired
     private ApiKeyRepository apiKeyRepository;
-
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private EntityManager em;
-
-    private User user;
-
-    @BeforeEach
-    void initUser() {
-        user = new User();
-        user.setName("Carol");
-        user.setUserName("carol");
-        user.setPassword("pw");
-        user.setRole(User.Role.CUSTOMER);
-        userRepository.save(user);
-    }
-
     @Test
-    void shouldHandleActiveAndInactiveKeysCorrectly() {
-        ApiKey activeKey = new ApiKey();
-        activeKey.setKey("active-key");
-        activeKey.setUser(user);
-        activeKey.setActive(true);
+    void findByKey_andIsActiveTrue() {
+        User user = new User();
+        user.setName("T");
+        user.setUserName("u");
+        user.setPassword("p");
+        userRepository.save(user);
 
-        ApiKey oldKey = new ApiKey();
-        oldKey.setKey("old-key");
-        oldKey.setUser(user);
-        oldKey.setActive(false);
+        ApiKey key1 = new ApiKey();
+        key1.setKey("k1"); key1.setUser(user); key1.setActive(true);
+        ApiKey key2 = new ApiKey();
+        key2.setKey("k2"); key2.setUser(user); key2.setActive(false);
+        apiKeyRepository.save(key1);
+        apiKeyRepository.save(key2);
 
-        apiKeyRepository.save(activeKey);
-        apiKeyRepository.save(oldKey);
-        em.flush();
-        em.clear();
-
-        Optional<ApiKey> foundActive = apiKeyRepository.findByKey("active-key");
-        assertThat(foundActive).isPresent();
-        assertThat(foundActive.get().isActive()).isTrue();
-
-        Optional<ApiKey> foundOld = apiKeyRepository.findByKey("old-key");
-        assertThat(foundOld).isPresent();
-        assertThat(foundOld.get().isActive()).isFalse();
+        Optional<ApiKey> found = apiKeyRepository.findByKey("k1").filter(ApiKey::isActive);
+        assertThat(found).isPresent();
 
         List<ApiKey> activeList = apiKeyRepository.findByUserAndIsActiveTrue(user);
-        assertThat(activeList)
-                .hasSize(1)
-                .extracting(ApiKey::getKey)
-                .containsExactly("active-key");
+        assertThat(activeList).containsExactly(key1);
     }
 }

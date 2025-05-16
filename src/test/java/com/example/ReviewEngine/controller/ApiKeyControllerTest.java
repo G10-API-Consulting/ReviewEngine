@@ -1,75 +1,77 @@
 package com.example.ReviewEngine.controller;
+
 import com.example.ReviewEngine.model.ApiKey;
 import com.example.ReviewEngine.model.User;
 import com.example.ReviewEngine.service.ApiKeyService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
+import java.util.Map;
 import java.util.Optional;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ApiKeyControllerTest {
-    @Mock
-    private ApiKeyService apiKeyService;
 
-    @Mock
-    private Authentication authentication;
-
-    @InjectMocks
-    private ApiKeyController apiKeyController;
+    @Mock ApiKeyService apiKeyService;
+    @Mock Authentication authentication;
+    @InjectMocks ApiKeyController controller;
 
     private User user;
-    private ApiKey apiKey;
+    private ApiKey key;
 
     @BeforeEach
-    void setUp(){
+    void init() {
         MockitoAnnotations.openMocks(this);
         user = new User();
-        user.setUserName("TestUser");
-        apiKey = new ApiKey();
-        apiKey.setKey("abc123");
+        user.setUserName("alice");
+        key = new ApiKey();
+        key.setKey("xyz");
         when(authentication.getPrincipal()).thenReturn(user);
-
     }
 
     @Test
-    void generateApiKey_success(){
-        when(apiKeyService.generateApiKey(user)).thenReturn(apiKey);
-        ResponseEntity<?> response = apiKeyController.generateApiKey(authentication);
-        assertEquals(200, response.getStatusCodeValue());
-        var body = (java.util.Map<String,String>) response.getBody();
-        assertNotNull(body);
-        assertEquals("abc123", body.get("apiKey"));
+    void generateApiKey_returnsKeyAndMessage() {
+        when(apiKeyService.generateApiKey(user)).thenReturn(key);
+
+        ResponseEntity<Map<String, String>> resp = controller.generateApiKey(authentication);
+
+        assertThat(resp.getStatusCodeValue()).isEqualTo(200);
+        Map<String, String> body = resp.getBody();
+        assertThat(body).containsEntry("apiKey", "xyz");
+        assertThat(body.get("message")).isNotBlank();
     }
 
     @Test
-    void getApiKey_found() {
-        when(apiKeyService.getActiveApiKey(user)).thenReturn(Optional.of(apiKey));
-        ResponseEntity<?> response = apiKeyController.getApiKey(authentication);
-        assertEquals(200, response.getStatusCodeValue());
-        var body = (java.util.Map<String,String>) response.getBody();
-        assertEquals("abc123", body.get("apiKey"));
+    void getApiKey_returnsKeyIfPresent() {
+        when(apiKeyService.getActiveApiKey(user)).thenReturn(Optional.of(key));
+
+        ResponseEntity<Map<String, String>> resp = controller.getApiKey(authentication);
+
+        assertThat(resp.getStatusCodeValue()).isEqualTo(200);
+        assertThat(resp.getBody()).containsEntry("apiKey", "xyz");
     }
 
     @Test
-    void getApiKey_notFound() {
+    void getApiKey_returns404IfMissing() {
         when(apiKeyService.getActiveApiKey(user)).thenReturn(Optional.empty());
-        ResponseEntity<?> response = apiKeyController.getApiKey(authentication);
-        assertEquals(404, response.getStatusCodeValue());
+
+        ResponseEntity<Map<String, String>> resp = controller.getApiKey(authentication);
+
+        assertThat(resp.getStatusCodeValue()).isEqualTo(404);
     }
 
     @Test
-    void revokeApiKey() {
+    void revokeApiKey_returnsRevokeMessage() {
         doNothing().when(apiKeyService).revokeAllApiKeys(user);
-        ResponseEntity<?> response = apiKeyController.revokeApiKey(authentication);
-        assertEquals(200, response.getStatusCodeValue());
-        var body = (java.util.Map<String,String>) response.getBody();
-        assertEquals("All API keys have been revoked.", body.get("message"));
+
+        ResponseEntity<Map<String, String>> resp = controller.revokeApiKey(authentication);
+
+        assertThat(resp.getStatusCodeValue()).isEqualTo(200);
+        assertThat(resp.getBody()).containsEntry("message", "All API keys have been revoked.");
     }
 }

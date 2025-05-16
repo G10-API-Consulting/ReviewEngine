@@ -1,4 +1,5 @@
 package com.example.ReviewEngine.controller;
+
 import com.example.ReviewEngine.dto.LoginRequest;
 import com.example.ReviewEngine.dto.RegisterRequest;
 import com.example.ReviewEngine.model.User;
@@ -6,16 +7,14 @@ import com.example.ReviewEngine.repository.UserRepository;
 import com.example.ReviewEngine.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
-import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class AuthControllerTest {
@@ -29,61 +28,101 @@ class AuthControllerTest {
     @InjectMocks
     private AuthController controller;
 
-    private RegisterRequest regReq;
-    private LoginRequest loginReq;
-    private User user;
-    private String token;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        regReq = new RegisterRequest();
-        regReq.setName("Test");
-        regReq.setUserName("user1");
-        regReq.setPassword("pass");
-
-        loginReq = new LoginRequest();
-        loginReq.setUserName("user1");
-        loginReq.setPassword("pass");
-
-        user = new User();
-        user.setUserName("user1");
-        user.setName("Test");
-        user.setPassword(new BCryptPasswordEncoder().encode("pass"));
-        token = "jwt-token";
-    }
-
-    @Test
-    void registerUser_conflict() {
-        when(userRepository.findByUserName("user1")).thenReturn(Optional.of(user));
-        ResponseEntity<String> resp = controller.registerUser(regReq);
-        assertEquals(409, resp.getStatusCodeValue());
-        assertTrue(resp.getBody().contains("Username is already taken"));
     }
 
     @Test
     void registerUser_success() {
-        when(userRepository.findByUserName("user1")).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
-        ResponseEntity<String> resp = controller.registerUser(regReq);
-        assertEquals(201, resp.getStatusCodeValue());
-        assertTrue(resp.getBody().contains("User registered successfully"));
+        RegisterRequest req = new RegisterRequest();
+        req.setUserName("bob");
+        req.setName("Bob");
+        req.setPassword("secret");
+
+        when(userRepository.findByUserName("bob")).thenReturn(Optional.empty());
+
+        ResponseEntity<String> resp = controller.registerUser(req);
+
+        assertThat(resp.getStatusCodeValue()).isEqualTo(201);
+        assertThat(resp.getBody()).isEqualTo("User registered successfully");
+        verify(userRepository).save(argThat(user ->
+                "bob".equals(user.getUserName()) &&
+                        new BCryptPasswordEncoder().matches("secret", user.getPassword()) &&
+                        "Bob".equals(user.getName())
+        ));
+    }
+
+    @Test
+    void registerUser_conflict() {
+        RegisterRequest req = new RegisterRequest();
+        req.setUserName("bob");
+        req.setName("Bob");
+        req.setPassword("secret");
+
+        when(userRepository.findByUserName("bob"))
+                .thenReturn(Optional.of(new User()));
+
+        ResponseEntity<String> resp = controller.registerUser(req);
+
+        assertThat(resp.getStatusCodeValue()).isEqualTo(409);
+        assertThat(resp.getBody()).isEqualTo("Username is already taken");
+        verify(userRepository, never()).save(any());
     }
 
     @Test
     void loginUser_success() {
-        when(userRepository.findByUserName("user1")).thenReturn(Optional.of(user));
-        when(jwtService.generateToken("user1")).thenReturn(token);
-        ResponseEntity<String> resp = controller.loginUser(loginReq);
-        assertEquals(200, resp.getStatusCodeValue());
-        assertTrue(resp.getBody().contains("Login successful"));
+        String raw = "passw0rd";
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashed = encoder.encode(raw);
+
+        User u = new User();
+        u.setUserName("alice");
+        u.setPassword(hashed);
+
+        when(userRepository.findByUserName("alice")).thenReturn(Optional.of(u));
+        when(jwtService.generateToken("alice")).thenReturn("tok123");
+
+        LoginRequest req = new LoginRequest();
+        req.setUserName("alice");
+        req.setPassword(raw);
+
+        ResponseEntity<String> resp = controller.loginUser(req);
+
+        assertThat(resp.getStatusCodeValue()).isEqualTo(200);
+        assertThat(resp.getBody()).contains("JWT: tok123");
     }
 
     @Test
     void loginUser_invalidPassword() {
-        user.setPassword(new BCryptPasswordEncoder().encode("wrong"));
-        when(userRepository.findByUserName("user1")).thenReturn(Optional.of(user));
-        ResponseEntity<String> resp = controller.loginUser(loginReq);
-        assertEquals(401, resp.getStatusCodeValue());
+        String raw = "passw0rd";
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashed = encoder.encode(raw);
+
+        User u = new User();
+        u.setUserName("alice");
+        u.setPassword(hashed);
+
+        when(userRepository.findByUserName("alice")).thenReturn(Optional.of(u));
+
+        LoginRequest req = new LoginRequest();
+        req.setUserName("alice");
+        req.setPassword("wrong");
+
+        ResponseEntity<String> resp = controller.loginUser(req);
+
+        assertThat(resp.getStatusCodeValue()).isEqualTo(401);
+        assertThat(resp.getBody()).isEqualTo("Invalid credentials");
+    }
+
+    @Test
+    void loginUser_userNotFound_throws() {
+        when(userRepository.findByUserName("nosuch")).thenReturn(Optional.empty());
+
+        LoginRequest req = new LoginRequest();
+        req.setUserName("nosuch");
+        req.setPassword("x");
+
+        assertThrows(RuntimeException.class, () -> controller.loginUser(req));
     }
 }
