@@ -1,11 +1,15 @@
 package com.example.ReviewEngine.dto;
 
-public class RegisterRequest {
+import jakarta.validation.constraints.NotBlank;
 
+public class RegisterRequest {
+    @NotBlank(message = "Name is required")
     private String name;
+    @NotBlank(message = "Username is required")
     private String userName;
+    @NotBlank(message = "Password is required")
     private String password;
-       // "ADMIN" or "CUSTOMER"
+
 
     public RegisterRequest() {
     }

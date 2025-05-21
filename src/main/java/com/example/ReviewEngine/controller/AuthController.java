@@ -2,12 +2,16 @@ package com.example.ReviewEngine.controller;
 
 import com.example.ReviewEngine.dto.LoginRequest;
 import com.example.ReviewEngine.dto.RegisterRequest;
+import com.example.ReviewEngine.exception.UserNotFoundException;
 import com.example.ReviewEngine.model.User;
 import com.example.ReviewEngine.repository.UserRepository;
 import com.example.ReviewEngine.service.JwtService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -24,9 +28,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterRequest request) {
+    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterRequest request) {
         if (userRepository.findByUserName(request.getUserName()).isPresent()) {
-            return ResponseEntity.status(409).body("Username is already taken");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken");
         }
 
         User user = new User();
@@ -43,9 +47,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginRequest request) {
+    public ResponseEntity<String> loginUser(@Valid @RequestBody LoginRequest request) {
         User existingUser = userRepository.findByUserName(request.getUserName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(request.getUserName()));
 
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         if (!encoder.matches(request.getPassword(), existingUser.getPassword())) {
