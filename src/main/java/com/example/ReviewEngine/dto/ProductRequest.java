@@ -2,15 +2,18 @@ package com.example.ReviewEngine.dto;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProductRequest {
 
+    @NotBlank(message = "Product name is required")
     @Schema(description = "Enter product name", example = "iphone 15")
     private String name;
 
+    @NotBlank(message = "A category for the product is required")
     @Schema(description = "Enter category", example = "Phones")
     private String category;
 

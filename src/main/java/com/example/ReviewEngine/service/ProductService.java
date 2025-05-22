@@ -3,6 +3,7 @@ package com.example.ReviewEngine.service;
 import com.example.ReviewEngine.dto.ProductRequest;
 import com.example.ReviewEngine.exception.ProductNotFoundException;
 import com.example.ReviewEngine.model.Product;
+import com.example.ReviewEngine.model.Review;
 import com.example.ReviewEngine.model.Tag;
 import com.example.ReviewEngine.repository.ProductRepository;
 import com.example.ReviewEngine.repository.TagRepository;
@@ -59,6 +60,21 @@ public class ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Produkt med id " + id + " finns inte."));
         productRepository.delete(existingProduct);
+    }
+
+    public void calculateAverageRating(Product product){
+        float tempRating = 0;
+        int i = product.getReviews().size();
+        if(i > 0) {
+            for (Review review : product.getReviews()) {
+                tempRating += review.getRating();
+            }
+            tempRating /= i;
+            product.setRating(tempRating);
+        }
+        else {
+            product.setRating(0);
+        }
     }
 }
 

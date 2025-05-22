@@ -1,8 +1,11 @@
 package com.example.ReviewEngine.dto;
 
-public class LoginRequest {
+import jakarta.validation.constraints.NotBlank;
 
+public class LoginRequest {
+    @NotBlank(message = "Username is required")
     private String userName;
+    @NotBlank(message = "Password is required")
     private String password;
 
     public LoginRequest() {

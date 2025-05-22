@@ -1,6 +1,10 @@
 package com.example.ReviewEngine.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+
 public class ReviewJson {
+
     private String review;
     private String writer;
     private int rating;

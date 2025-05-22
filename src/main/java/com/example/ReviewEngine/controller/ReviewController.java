@@ -3,6 +3,7 @@ package com.example.ReviewEngine.controller;
 import com.example.ReviewEngine.dto.ReviewRequest;
 import com.example.ReviewEngine.model.Review;
 import com.example.ReviewEngine.service.ReviewService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,12 +20,12 @@ public class ReviewController {
     }
 
     @PostMapping("/{id}/review")
-    public ResponseEntity<Review> addReview(@PathVariable Long id, @RequestBody ReviewRequest request){
+    public ResponseEntity<Review> addReview(@PathVariable Long id, @Valid @RequestBody ReviewRequest request){
         return ResponseEntity.ok(reviewService.createReview(id, request));
     }
 
     @PutMapping("/review/{id}")
-    public ResponseEntity<Review> updateReview(@PathVariable Long id, @RequestBody ReviewRequest request){
+    public ResponseEntity<Review> updateReview(@PathVariable Long id, @Valid @RequestBody ReviewRequest request){
         Review updatedReview = reviewService.updateReview(id , request);
         return ResponseEntity.ok(updatedReview);
     }

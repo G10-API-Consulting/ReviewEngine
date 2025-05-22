@@ -2,8 +2,11 @@ package com.example.ReviewEngine.controller;
 
 import com.example.ReviewEngine.ai.AsyncReviewService;
 import com.example.ReviewEngine.dto.ProductRequest;
+import com.example.ReviewEngine.exception.ProductNotFoundException;
 import com.example.ReviewEngine.model.Product;
+import com.example.ReviewEngine.model.Review;
 import com.example.ReviewEngine.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,11 +32,13 @@ public class ProductController {
 
 
     @PostMapping("/save")
-    public ResponseEntity<Product> saveProduct(@RequestBody ProductRequest productRequest){
+    public ResponseEntity<Product> saveProduct(@Valid @RequestBody ProductRequest productRequest){
         try {
             Product product = productService.createProduct(productRequest);
 
             asyncReviewService.generateAndSaveReviewsAsync(product).join();
+
+            productService.calculateAverageRating(product);
 
             Product updatedProduct = productService.getProductById(product.getProductId());
             return ResponseEntity.status(HttpStatus.CREATED).body(updatedProduct);
