@@ -7,6 +7,7 @@ import com.example.ReviewEngine.model.Review;
 import com.example.ReviewEngine.model.Tag;
 import com.example.ReviewEngine.repository.ProductRepository;
 import com.example.ReviewEngine.repository.TagRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -40,6 +41,7 @@ public class ProductService {
                 .name(request.getName())
                 .category(request.getCategory())
                 .tags(productTags)
+                .customerId(request.getCustomerId())
                 .build();
 
         return productRepository.save(product);
@@ -77,6 +79,10 @@ public class ProductService {
         else {
             product.setRating(0);
         }
+    }
+
+    public List<Product> getProductsForCustomer(Long customerId, Sort sort) {
+        return productRepository.findByCustomerId(customerId, sort);
     }
 }
 

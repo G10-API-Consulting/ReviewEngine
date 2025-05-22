@@ -5,6 +5,7 @@ import com.example.ReviewEngine.dto.ProductRequest;
 import com.example.ReviewEngine.model.Product;
 import com.example.ReviewEngine.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +67,20 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@PathVariable Long id){
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/customer/{id}")
+    public ResponseEntity<List<Product>> getProductsForCustomer(
+            @PathVariable("id") Long customerId,
+            @RequestParam(defaultValue = "name") String sortField,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortField);
+        List<Product> sorted = productService.getProductsForCustomer(customerId, sort);
+        for(Product product : sorted){
+            productService.calculateAverageRating(product);
+        }
+        return ResponseEntity.ok(sorted);
     }
 
 }

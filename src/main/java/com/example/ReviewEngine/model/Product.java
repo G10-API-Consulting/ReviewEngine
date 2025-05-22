@@ -1,4 +1,5 @@
 package com.example.ReviewEngine.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -18,6 +19,20 @@ public class Product {
     private String category;
 
     private float rating;
+
+
+    @Column(name = "customer_id", nullable = true)
+    @JsonIgnore
+    private Long customerId;
+
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 
     @ManyToMany
     @JoinTable(
@@ -46,6 +61,7 @@ public class Product {
         this.category = builder.category;
         this.tags = builder.tags;
         this.reviews = builder.reviews;
+        this.customerId = builder.customerId;
     }
 
     public static Builder builder() {
@@ -110,7 +126,13 @@ public class Product {
         private String category;
         private Set<Tag> tags = new HashSet<>();
         private List<Review> reviews = new ArrayList<>();
+        private Long customerId;
 
+
+        public Builder customerId(Long customerId){
+            this.customerId = customerId;
+            return this;
+        }
         public Builder name(String name){
             this.name = name;
             return this;

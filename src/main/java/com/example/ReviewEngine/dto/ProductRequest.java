@@ -20,6 +20,16 @@ public class ProductRequest {
     @Schema(description = "Enter tags", example = "[\"Smartphone\", \"Apple\"]")
     private List<String> tags = new ArrayList<>();
 
+    @Schema(description = "Enter customer id", example = "1")
+    private Long customerId;
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
 
     public String getName() {
         return name;
