@@ -2,9 +2,7 @@ package com.example.ReviewEngine.controller;
 
 import com.example.ReviewEngine.ai.AsyncReviewService;
 import com.example.ReviewEngine.dto.ProductRequest;
-import com.example.ReviewEngine.exception.ProductNotFoundException;
 import com.example.ReviewEngine.model.Product;
-import com.example.ReviewEngine.model.Review;
 import com.example.ReviewEngine.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -27,7 +25,13 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<Product>> getProducts(){
-        return ResponseEntity.ok(productService.getAllProducts());
+        List<Product> products = productService.getAllProducts();
+
+        for(Product product : products){
+            productService.calculateAverageRating(product);
+        }
+
+        return ResponseEntity.ok(products);
     }
 
 
@@ -38,9 +42,9 @@ public class ProductController {
 
             asyncReviewService.generateAndSaveReviewsAsync(product).join();
 
-            productService.calculateAverageRating(product);
 
             Product updatedProduct = productService.getProductById(product.getProductId());
+
             return ResponseEntity.status(HttpStatus.CREATED).body(updatedProduct);
         } catch (Exception e) {
 
@@ -52,7 +56,9 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable Long id){
-        return ResponseEntity.ok(productService.getProductById(id));
+        Product product = productService.getProductById(id);
+        productService.calculateAverageRating(product);
+        return ResponseEntity.ok(product);
     }
 
 
