@@ -17,6 +17,8 @@ public class Product {
     @Column(nullable = false)
     private String category;
 
+    private float rating;
+
     @ManyToMany
     @JoinTable(
             name = "product_tags",
@@ -134,4 +136,11 @@ public class Product {
         }
     }
 
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
 }
