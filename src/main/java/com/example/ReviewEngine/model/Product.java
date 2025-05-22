@@ -18,9 +18,8 @@ public class Product {
     @Column(nullable = false)
     private String category;
 
-    @Column(name = "customer_id", nullable = false)
+    @Column(name = "customer_id", nullable = true)
     @JsonIgnore
-
     private Long customerId;
 
     public Long getCustomerId() {
@@ -58,6 +57,7 @@ public class Product {
         this.category = builder.category;
         this.tags = builder.tags;
         this.reviews = builder.reviews;
+        this.customerId = builder.customerId;
     }
 
     public static Builder builder() {
@@ -122,6 +122,12 @@ public class Product {
         private String category;
         private Set<Tag> tags = new HashSet<>();
         private List<Review> reviews = new ArrayList<>();
+        private Long customerId;
+
+        public Builder customerId(Long customerId){
+            this.customerId = customerId;
+            return this;
+        }
 
         public Builder name(String name){
             this.name = name;

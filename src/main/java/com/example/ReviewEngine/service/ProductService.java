@@ -39,6 +39,7 @@ public class ProductService {
                 .name(request.getName())
                 .category(request.getCategory())
                 .tags(productTags)
+                .customerId(request.getCustomerId())
                 .build();
 
         return productRepository.save(product);
