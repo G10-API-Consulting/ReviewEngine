@@ -3,13 +3,16 @@ package com.example.ReviewEngine.controller;
 import com.example.ReviewEngine.ai.AsyncReviewService;
 import com.example.ReviewEngine.dto.ProductRequest;
 import com.example.ReviewEngine.model.Product;
+import com.example.ReviewEngine.service.CityLoader;
 import com.example.ReviewEngine.service.ProductService;
+import com.example.ReviewEngine.service.WeatherClient;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -17,10 +20,14 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
     private final AsyncReviewService asyncReviewService;
+    private final CityLoader cityLoader;
+    private final WeatherClient weatherClient;
 
-    public ProductController(AsyncReviewService asyncReviewService, ProductService productService ){
+    public ProductController(AsyncReviewService asyncReviewService, ProductService productService, CityLoader cityLoader, WeatherClient weatherClient ){
         this.productService = productService;
         this.asyncReviewService = asyncReviewService;
+        this.cityLoader = cityLoader;
+        this.weatherClient = weatherClient;
     }
 
 
@@ -39,9 +46,15 @@ public class ProductController {
     @PostMapping("/save")
     public ResponseEntity<Product> saveProduct(@Valid @RequestBody ProductRequest productRequest){
         try {
+
+            List<String> description = new ArrayList<>();
+            for (int i = 0; i <= 4; i++){
+                description.add(weatherClient.getCurrentWeather());
+            }
+
             Product product = productService.createProduct(productRequest);
 
-            asyncReviewService.generateAndSaveReviewsAsync(product).join();
+            asyncReviewService.generateAndSaveReviewsAsync(product, description).join();
 
 
             Product updatedProduct = productService.getProductById(product.getProductId());

@@ -25,12 +25,13 @@ public class AsyncReviewService {
     }
 
     @Async
-    public CompletableFuture<Void> generateAndSaveReviewsAsync(Product product) {
+    public CompletableFuture<Void> generateAndSaveReviewsAsync(Product product, List<String> des) {
         try {
-            String jsonResponse = aiClient.generateReview(product);
+            String jsonResponse = aiClient.generateReview(product, des);
             System.out.println("JSON från AI:\n" + jsonResponse);
             ObjectMapper mapper = new ObjectMapper();
-            List<ReviewJson> reviews = mapper.readValue(jsonResponse, new TypeReference<>() {});
+            List<ReviewJson> reviews = mapper.readValue(jsonResponse, new TypeReference<>() {
+            });
             if (reviews != null) {
                 for (ReviewJson r : reviews) {
                     ReviewRequest request = ReviewRequest.builder()
@@ -39,7 +40,7 @@ public class AsyncReviewService {
                             .rating(r.getRating())
                             .build();
 
-                    reviewService.createReview(product.getProductId() ,request);
+                    reviewService.createReview(product.getProductId(), request);
                 }
             }
         } catch (Exception e) {
