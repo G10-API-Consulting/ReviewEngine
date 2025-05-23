@@ -9,4 +9,8 @@ FROM amazoncorretto:21
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
+
+RUN mkdir -p /app/data
+VOLUME ["/app/data"]
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
