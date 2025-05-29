@@ -27,12 +27,12 @@ DB_PASSWORD=lösenord
 SPRING_PROFILES_ACTIVE=dev
 ```
 
-4. Starta MySQL-databasen (exempel med Docker):
+3. Starta MySQL-databasen (exempel med Docker):
 ``` javascript
 docker run --name reviewengine-mysql -e MYSQL_ROOT_PASSWORD=lösenord -e MYSQL_DATABASE=reviewengine -p 3306:3306 -d mysql:8
 ```
 
-5. Gå till din IDEs "Run" flik, tryck på "Edit Configurations". Lägg till API-nycklarna som behövs för OpenWeatherMap och Anthropic Ai.
+4. Gå till din IDEs "Run" flik, tryck på "Edit Configurations". Lägg till API-nycklarna som behövs för OpenWeatherMap och Anthropic Ai.
    
 ## 4. Kör Applikationen
 Bygg och kör applikationen, sedan starta upp din webläsare och skriv in följande adress för att använda API:et med Swagger:
