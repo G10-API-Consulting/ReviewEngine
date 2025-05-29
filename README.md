@@ -27,8 +27,9 @@ SPRING_PROFILES_ACTIVE=dev
 ```
 
 4. Starta MySQL-databasen (exempel med Docker):
+``` javascript
 docker run --name reviewengine-mysql -e MYSQL_ROOT_PASSWORD=lösenord -e MYSQL_DATABASE=reviewengine -p 3306:3306 -d mysql:8
-
+```
 ## 4. Kör Applikationen
 Bygg och kör applikationen, sedan starta upp din webläsare och skriv in följande adress för att använda API:et med Swagger:
 http://localhost:8080/swagger-ui/index.html
