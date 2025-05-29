@@ -16,6 +16,7 @@ Förutsättningar för att köra projektet:
 https://github.com/G10-API-Consulting/ReviewEngine.git
 
 2. Skapa en .env-fil i projekt-mappen med följande innehåll:
+``` javascrip
 WEATHER_API_KEY=din_weather_api_nyckel
 DB_HOST=localhost
 DB_PORT=3306
@@ -23,8 +24,9 @@ DB_NAME=reviewengine
 DB_USER=användare
 DB_PASSWORD=lösenord
 SPRING_PROFILES_ACTIVE=dev
+```
 
-3. Starta MySQL-databasen (exempel med Docker):
+4. Starta MySQL-databasen (exempel med Docker):
 docker run --name reviewengine-mysql -e MYSQL_ROOT_PASSWORD=lösenord -e MYSQL_DATABASE=reviewengine -p 3306:3306 -d mysql:8
 
 ## 4. Kör Applikationen
