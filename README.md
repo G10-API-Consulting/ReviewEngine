@@ -10,6 +10,7 @@ Förutsättningar för att köra projektet:
 2. Maven
 3. MySQL-databas
 4. OpenWeatherMap API-nyckel
+5. Anthropic api key
 
 ## 3. Installation
 1. Klona projektet från GitHub:
